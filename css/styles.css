@@ -1,0 +1,232 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+/* Layout principal: coluna (conteúdo + barra inferior) */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Conteúdo ocupa todo o resto da tela */
+#container {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+/* Sidebar à esquerda */
+#sidebar {
+  width: 320px;
+  max-width: 100%;
+  padding: 10px;
+  background-color: #f0f0f0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-right: 1px solid #ccc;
+}
+
+/* Abas da sidebar (Geral / Projeto) */
+#sidebarTabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.sidebar-tab {
+  flex: 1;
+  padding: 4px 6px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  background-color: #e6e6e6;
+  cursor: pointer;
+}
+
+.sidebar-tab-active {
+  background-color: #ffffff;
+  font-weight: bold;
+}
+
+/* Painel de controles (novo projeto, serial, medição...) */
+#controlsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Painéis (cards) genéricos */
+.panel {
+  background-color: #ffffff;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+/* Painel de projeto ativo (card do projeto) ocupa o restante da sidebar no modo projeto */
+#projectsPanel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+#projetosContainer {
+  flex: 1;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+/* Área do mapa com abas em cima */
+#mapArea {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Barra de abas no topo do mapa (uma por projeto) */
+#tabsBar {
+  flex-shrink: 0;
+  display: flex;
+  gap: 4px;
+  padding: 4px 8px 0 8px;
+  border-bottom: 1px solid #ccc;
+  background-color: #f7f7f7;
+}
+
+/* Botões das abas de projeto */
+.tab-button {
+  padding: 4px 10px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  background-color: #e6e6e6;
+  cursor: pointer;
+}
+
+.tab-button.tab-active {
+  background-color: #ffffff;
+  font-weight: bold;
+}
+
+/* Mapa ocupa o resto da área */
+#map {
+  flex: 1;
+  height: 100%;
+}
+
+/* Barra inferior fixa */
+#statusSistema {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: #333;
+  padding: 6px 10px;
+  border-top: 1px solid #ccc;
+  background-color: #e0e0e0;
+}
+
+/* Projetos (card da cerca) */
+.projeto-container {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: #fff;
+}
+
+.projeto-container h3 {
+  margin: 0 0 5px;
+  font-size: 14px;
+}
+
+.projeto-container ul {
+  list-style-type: none;
+  padding: 0;
+  max-height: 120px;
+  overflow-y: auto;
+  margin: 4px 0;
+}
+
+.projeto-container li {
+  font-size: 11px;
+  margin: 2px 0;
+}
+
+/* Campos dentro do card */
+.campo {
+  margin-bottom: 6px;
+}
+
+.campo label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+
+.campo input,
+.campo textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 12px;
+}
+
+/* Botões padronizados */
+button {
+  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 13px;
+  border-radius: 4px;
+  border: 1px solid #bbb;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Botões principais na sidebar: largura total */
+.btn-main {
+  width: 100%;
+}
+
+/* Linhas de botões e status no painel serial */
+.panel-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.serial-status-row {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Botões dentro dos cards de projeto */
+.projeto-container .btn-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.projeto-container .btn-row button {
+  flex: 1;
+  font-size: 11px;
+  padding: 4px 6px;
+}

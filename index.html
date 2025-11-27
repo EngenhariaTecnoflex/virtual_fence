@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Editor de Cercas Geográficas</title>
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="sidebar">
+      <h2>Projetos de Cercas</h2>
+
+      <div id="sidebarTabs">
+        <button id="tabSidebarGlobal" class="sidebar-tab sidebar-tab-active">⚙️ Geral</button>
+        <button id="tabSidebarProject" class="sidebar-tab">📁 Projeto</button>
+      </div>
+
+      <div id="controlsPanel">
+        <input type="file" id="jsonUpload" accept=".json" multiple>
+        <button id="btnNovoProjeto" class="btn-main">🆕 Novo Projeto de Cercas</button>
+
+        <div id="serialControls" class="panel">
+          <div class="panel-title">Comunicação Serial</div>
+          <div class="panel-row">
+            <button id="btnConectarSerial" class="btn-main">🔌 Conectar Serial</button>
+            <button id="btnDesconectarSerial" class="btn-main">❌ Desconectar</button>
+          </div>
+          <div class="panel-row">
+            <button id="btnImportarSerial" class="btn-main">⬇️ Importar JSON da ESP32</button>
+          </div>
+          <div class="serial-status-row">
+            <span id="serialStatus">Desconectado</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Medição</div>
+          <button id="btnAtivarMedicao" class="btn-main">📏 Medir Distância</button>
+          <button id="btnLimparMedicao" class="btn-main">🧹 Limpar Medição</button>
+        </div>
+      </div>
+
+      <div id="projectsPanel" class="panel">
+        <div class="panel-title">Projeto ativo</div>
+        <div id="projetosContainer"></div>
+      </div>
+    </div>
+
+    <div id="mapArea">
+      <div id="tabsBar"></div>
+      <div id="map"></div>
+    </div>
+  </div>
+
+  <div id="statusSistema">🟢 Sistema pronto</div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/togeojson@0.16.0/dist/togeojson.umd.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
