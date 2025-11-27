@@ -131,24 +131,41 @@ function showAllProjectsOnMap() {
 
 function refreshMapForProjectMode(projetoId) {
   if (!state.map) return;
-  const projeto = state.projetos[projetoId];
-  if (!projeto) return;
+  const projetoAtivo = state.projetos[projetoId];
+  if (!projetoAtivo) return;
 
-  // Remove tudo primeiro
+  // 1) Limpa polígonos e oculta TODOS os marcadores de TODOS os projetos
   for (let pid in state.projetos) {
     const proj = state.projetos[pid];
     for (let tipo in proj.cercas) {
       const cerca = proj.cercas[tipo];
+
+      // Remove polígonos existentes
       if (cerca.polygonLayer && state.map.hasLayer(cerca.polygonLayer)) {
         state.map.removeLayer(cerca.polygonLayer);
+      }
+      cerca.polygonLayer = null;
+
+      // Oculta e desabilita drag de todos os marcadores
+      if (Array.isArray(cerca.markers)) {
+        cerca.markers.forEach((marker) => {
+          if (!marker) return;
+          if (typeof marker.setOpacity === "function") {
+            marker.setOpacity(0); // outros projetos sempre invisíveis
+          }
+          if (marker.dragging) {
+            marker.dragging.disable();
+          }
+        });
       }
     }
   }
 
-  // Recria só do projeto ativo
-  for (let tipo in projeto.cercas) {
-    const cerca = projeto.cercas[tipo];
+  // 2) Recria polígonos e configura marcadores SÓ do projeto ativo
+  for (let tipo in projetoAtivo.cercas) {
+    const cerca = projetoAtivo.cercas[tipo];
 
+    // Polígono do projeto ativo
     if (cerca.pontos.length > 2) {
       cerca.polygonLayer = L.polygon(
         cerca.pontos.map((p) => [p.lat, p.lng]),
@@ -163,14 +180,20 @@ function refreshMapForProjectMode(projetoId) {
       cerca.polygonLayer = null;
     }
 
+    // Marcadores do projeto ativo
     if (Array.isArray(cerca.markers)) {
       cerca.markers.forEach((marker) => {
-        if (marker && typeof marker.setOpacity === "function") {
-          marker.setOpacity(tipo === state.cercaAtual ? 1 : 0);
+        if (!marker) return;
+
+        // Só a cerca ativa tem marcadores visíveis e arrastáveis
+        const ativa = tipo === state.cercaAtual;
+
+        if (typeof marker.setOpacity === "function") {
+          marker.setOpacity(ativa ? 1 : 0);
         }
-        if (marker && marker.dragging) {
-          // Só a cerca ativa é arrastável
-          if (tipo === state.cercaAtual) {
+
+        if (marker.dragging) {
+          if (ativa) {
             marker.dragging.enable();
           } else {
             marker.dragging.disable();
@@ -180,6 +203,7 @@ function refreshMapForProjectMode(projetoId) {
     }
   }
 }
+
 
 
 // ---------------- Modo da sidebar (chamado de fora) ---------------- //
