@@ -12,7 +12,12 @@
     <div id="sidebar">
       <h2>Projetos de Cercas</h2>
       <div id="controlsPanel">
-        <input type="file" id="jsonUpload" accept=".json" multiple>
+        <div class="panel-row">
+            <input type="file" id="jsonUpload" accept=".json" multiple hidden>
+            <label for="jsonUpload" class="btn-main file-button">📁 Importar JSON</label>
+        </div>
+
+
         <button id="btnNovoProjeto" class="btn-main">🆕 Novo Projeto de Cercas</button>
 
         <div id="serialControls" class="panel">

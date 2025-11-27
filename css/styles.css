@@ -1,33 +1,49 @@
+/* ========== BASE ========== */
+
 html, body {
   height: 100%;
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 /* Layout principal: coluna (conteúdo + barra inferior) */
 body {
   display: flex;
   flex-direction: column;
+  background: radial-gradient(circle at top, #f5f7ff 0, #e4e7f2 35%, #d7dbe8 100%);
+  color: #1f2933;
 }
 
-/* Conteúdo ocupa todo o resto da tela */
+/* ========== CONTAINER PRINCIPAL ========== */
+
 #container {
   flex: 1;
   display: flex;
   min-height: 0;
 }
 
-/* Sidebar à esquerda */
+/* ========== SIDEBAR ========== */
+
 #sidebar {
-  width: 320px;
+  width: 340px;
   max-width: 100%;
-  padding: 10px;
-  background-color: #f0f0f0;
+  padding: 12px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  border-right: 1px solid #ccc;
+  gap: 10px;
+
+  background: linear-gradient(180deg, #ffffffcc, #f3f4ffdd);
+  backdrop-filter: blur(6px);
+  border-right: 1px solid #d0d4e5;
+  box-shadow: 4px 0 18px rgba(15, 23, 42, 0.12);
+}
+
+#sidebar h2 {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
 }
 
 /* Painel de controles (novo projeto, serial, medição...) */
@@ -37,22 +53,27 @@ body {
   gap: 8px;
 }
 
-/* Painéis (cards) genéricos */
+/* ========== PAINÉIS (cards) ========== */
+
 .panel {
   background-color: #ffffff;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid #e1e5f0;
+  padding: 10px;
   box-sizing: border-box;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
 }
 
 .panel-title {
-  font-size: 13px;
-  font-weight: bold;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
   margin-bottom: 6px;
 }
 
-/* Painel de projeto ativo (card do projeto) ocupa o restante da sidebar no modo projeto */
+/* Painel de projeto ativo ocupa o restante da sidebar no modo projeto */
 #projectsPanel {
   flex: 1;
   display: flex;
@@ -64,95 +85,116 @@ body {
   flex: 1;
   overflow-y: auto;
   margin-top: 4px;
+  padding-right: 2px;
 }
 
-/* Área do mapa com abas em cima */
+/* Scrollbar discreta na sidebar */
+#projetosContainer::-webkit-scrollbar {
+  width: 6px;
+}
+#projetosContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+#projetosContainer::-webkit-scrollbar-thumb {
+  background: #cbd2e8;
+  border-radius: 3px;
+}
+
+/* ========== ÁREA DO MAPA + ABAS ========== */
+
 #mapArea {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;
+  background: radial-gradient(circle at top, #f9fafb 0, #edf2ff 45%, #e5ecff 100%);
 }
 
 /* Barra de abas no topo do mapa (Geral + projetos) */
 #tabsBar {
   flex-shrink: 0;
   display: flex;
-  gap: 4px;
-  padding: 4px 8px 0 8px;
-  border-bottom: 1px solid #ccc;
-  background-color: #f7f7f7;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 8px 10px 0 10px;
+  border-bottom: 1px solid #cbd5f5;
+  background: linear-gradient(180deg, #f9fafb, #eef2ff);
 }
 
 /* Botões das abas (Geral + projetos) */
 .tab-button {
-  padding: 4px 10px;
+  position: relative;
+  padding: 6px 12px 7px;
   font-size: 13px;
-  border: 1px solid #ccc;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid transparent;
   border-bottom: none;
-  border-radius: 4px 4px 0 0;
-  background-color: #e6e6e6;
+  background: transparent;
   cursor: pointer;
+  color: #6b7280;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.08s ease;
 }
 
+.tab-button:hover {
+  background: #e5e7ff;
+  color: #374151;
+  transform: translateY(-1px);
+}
+
+/* Aba ativa */
 .tab-button.tab-active {
-  background-color: #ffffff;
-  font-weight: bold;
+  background: #ffffff;
+  color: #1f2933;
+  font-weight: 600;
+  border-color: #c4cbe9;
+  box-shadow: 0 -1px 8px rgba(15, 23, 42, 0.12);
 }
 
 /* Mapa ocupa o resto da área */
 #map {
   flex: 1;
   height: 100%;
+  box-sizing: border-box;
 }
 
-/* Barra inferior fixa */
+/* ========== BARRA INFERIOR (STATUS) ========== */
+
 #statusSistema {
   flex-shrink: 0;
   font-size: 13px;
-  color: #333;
-  padding: 6px 10px;
-  border-top: 1px solid #ccc;
-  background-color: #e0e0e0;
+  color: #111827;
+  padding: 6px 12px;
+  border-top: 1px solid #d1d5e3;
+  background: linear-gradient(90deg, #e5e7f5, #f5f5ff);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* Projetos (card da cerca) */
-.projeto-container {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 8px;
-  margin-bottom: 8px;
-  background-color: #fff;
+/* ========== INPUTS / CAMPOS ========== */
+
+input[type="file"],
+input[type="text"],
+textarea,
+select {
+  font-family: inherit;
+  font-size: 13px;
 }
 
-.projeto-container h3 {
-  margin: 0 0 5px;
-  font-size: 14px;
-}
-
-.projeto-container ul {
-  list-style-type: none;
-  padding: 0;
-  max-height: 120px;
-  overflow-y: auto;
-  margin: 4px 0;
-}
-
-.projeto-container li {
-  font-size: 11px;
-  margin: 2px 0;
-}
-
-/* Campos dentro do card */
 .campo {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .campo label {
   display: block;
-  font-weight: bold;
-  margin-bottom: 2px;
+  font-weight: 600;
+  margin-bottom: 3px;
   font-size: 11px;
+  color: #4b5563;
 }
 
 .campo input,
@@ -160,28 +202,96 @@ body {
   width: 100%;
   box-sizing: border-box;
   font-size: 12px;
+  padding: 5px 7px;
+  border-radius: 6px;
+  border: 1px solid #d1d5e3;
+  background-color: #f9fafb;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
-/* Botões padronizados */
+.campo input:focus,
+.campo textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15);
+  background-color: #ffffff;
+}
+
+/* ========== BOTÕES ========== */
+
 button {
   cursor: pointer;
-  padding: 6px 10px;
+  padding: 7px 10px;
   font-size: 13px;
-  border-radius: 4px;
-  border: 1px solid #bbb;
-  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #d1d5e3;
+  background: linear-gradient(180deg, #ffffff, #f3f4ff);
   box-sizing: border-box;
+  color: #1f2933;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.06s ease;
+}
+
+button:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f9fafb, #e5e7ff);
+  border-color: #9ca3d9;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.16);
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
 }
 
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: default;
+  box-shadow: none;
 }
 
-/* Botões principais na sidebar: largura total */
+/* Botões principais em largura total */
 .btn-main {
   width: 100%;
 }
+
+.file-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #ffffff, #f3f4ff);
+  border: 1px solid #d1d5e3;
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  width: 100%;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.06s ease;
+}
+
+.file-button:hover {
+  background: linear-gradient(180deg, #f9fafb, #e5e7ff);
+  border-color: #9ca3d9;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.16);
+  transform: translateY(-1px);
+}
+
+.file-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.18);
+}
+
 
 /* Linhas de botões e status no painel serial */
 .panel-row {
@@ -206,5 +316,71 @@ button:disabled {
 .projeto-container .btn-row button {
   flex: 1;
   font-size: 11px;
-  padding: 4px 6px;
+  padding: 5px 6px;
+}
+
+/* ========== CARDS DE PROJETO ========== */
+
+.projeto-container {
+  border: 1px solid #dde1f0;
+  border-radius: 10px;
+  padding: 8px;
+  margin-bottom: 8px;
+  background-color: #fdfdff;
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.35);
+}
+
+.projeto-container h3 {
+  margin: 0 0 6px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+/* Listas de pontos de cerca */
+.projeto-container ul {
+  list-style-type: none;
+  padding: 0;
+  max-height: 120px;
+  overflow-y: auto;
+  margin: 4px 0;
+  border-radius: 6px;
+  background: #f9fafb;
+  border: 1px dashed #d1d5e3;
+}
+
+.projeto-container li {
+  font-size: 11px;
+  margin: 2px 8px;
+  padding: 2px 0;
+  color: #4b5563;
+}
+
+/* Scrollbar discreta nas listas */
+.projeto-container ul::-webkit-scrollbar {
+  width: 5px;
+}
+
+.projeto-container ul::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.projeto-container ul::-webkit-scrollbar-thumb {
+  background: #cbd2e8;
+  border-radius: 3px;
+}
+
+/* Campo de seleção KML + file */
+.projeto-container select.kml-tipo {
+  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  border: 1px solid #d1d5e3;
+  background-color: #f9fafb;
+}
+
+/* Input file do projeto (KML) */
+.projeto-container input[type="file"].kml-file {
+  margin-top: 4px;
+  font-size: 11px;
 }
