@@ -185,3 +185,37 @@ export async function enviarComandoSerial(comando, timeoutMs = 1000) {
   // devolve o que tiver sido lido até agora
   return readBuffer;
 }
+
+/**
+ * Envia um comando e espera até aparecer o prompt no output.
+ */
+export async function enviarComandoSerialAtePrompt(comando, prompt = "esp32s3>") {
+  if (!port || !writer || !isConnected) {
+    throw new Error("Serial não está conectada.");
+  }
+
+  readBuffer = ""; // limpa buffer
+
+  const texto = comando.endsWith("\n") ? comando : comando + "\n";
+  await writer.write(textEncoder.encode(texto));
+
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error(`Timeout esperando prompt "${prompt}"`));
+    }, 5000); // segurança: 5s
+
+    const checkLoop = () => {
+      if (readBuffer.includes(prompt)) {
+        clearTimeout(timeout);
+        const resp = readBuffer;
+        readBuffer = "";
+        resolve(resp);
+      } else {
+        requestAnimationFrame(checkLoop);
+      }
+    };
+
+    checkLoop();
+  });
+}
+

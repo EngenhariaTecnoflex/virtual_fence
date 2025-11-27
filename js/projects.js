@@ -1,6 +1,7 @@
 import { state } from "./state.js";
 import {
   enviarComandoSerial,
+  enviarComandoSerialAtePrompt,
   delay,
   normalizarNomeArquivoRoot,
   escaparTextoFedit,
@@ -851,8 +852,10 @@ export async function exportarProjetoParaSerial(projetoId) {
       const textoEscapado = escaparTextoFedit(linhaOriginal);
       const cmd = `fedit ${tempPath} -t "${textoEscapado}"`;
 
-      await enviarComandoSerial(cmd, 2000);
-      await delay(10);
+    //   await enviarComandoSerial(cmd, 2000);
+    //   await delay(10);
+
+      await enviarComandoSerialAtePrompt(cmd);
 
       if (statusEl) {
         statusEl.textContent =
