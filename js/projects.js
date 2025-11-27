@@ -5,6 +5,7 @@ import {
   normalizarNomeArquivoRoot,
   escaparTextoFedit,
 } from "./serial.js";
+import { toGeoJSON } from "./libs/togeojson-module.js";
 
 // ---------------- Helpers UI: abas de projeto + aba Geral ---------------- //
 function createProjectTab(id, name) {
@@ -645,7 +646,15 @@ export function handleKMLUpload(event, projetoId, tipo) {
       const parser = new DOMParser();
       const kmlDoc = parser.parseFromString(text, "text/xml");
 
-      const geojson = toGeoJSON.kml(kmlDoc);
+      // ✅ Garante que a biblioteca foi carregada
+      const tg = toGeoJSON;
+      if (!tg || typeof tg.kml !== "function") {
+        throw new Error(
+          "Biblioteca toGeoJSON não carregada. Verifique se o script UMD está incluído no index.html."
+        );
+      }
+
+      const geojson = tg.kml(kmlDoc);
       const coords = [];
 
       geojson.features.forEach((feature) => {
@@ -664,6 +673,7 @@ export function handleKMLUpload(event, projetoId, tipo) {
       const projeto = state.projetos[projetoId];
       const cerca = projeto.cercas[tipo];
 
+      // limpa cerca antiga
       cerca.markers.forEach((marker) => state.map.removeLayer(marker));
       cerca.markers = [];
       if (cerca.polygonLayer) {
@@ -686,6 +696,7 @@ export function handleKMLUpload(event, projetoId, tipo) {
 
   reader.readAsText(file);
 }
+
 
 // ---------------- JSON export local ---------------- //
 export function gerarJsonProjeto(projetoId) {
