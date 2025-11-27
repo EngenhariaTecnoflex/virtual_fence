@@ -87,7 +87,7 @@ function showAllProjectsOnMap() {
 
   const allPoints = [];
 
-  // Recria polígonos de todos os projetos, marcadores invisíveis
+  // Recria polígonos de todos os projetos, marcadores invisíveis e sem drag
   for (let pid in state.projetos) {
     const projeto = state.projetos[pid];
     for (let tipo in projeto.cercas) {
@@ -112,7 +112,10 @@ function showAllProjectsOnMap() {
       if (Array.isArray(cerca.markers)) {
         cerca.markers.forEach((marker) => {
           if (marker && typeof marker.setOpacity === "function") {
-            marker.setOpacity(0); // sem interação no modo global
+            marker.setOpacity(0); // invisíveis na aba Geral
+          }
+          if (marker && marker.dragging) {
+            marker.dragging.disable(); // sem drag na aba Geral
           }
         });
       }
@@ -124,6 +127,7 @@ function showAllProjectsOnMap() {
     state.map.fitBounds(bounds, { padding: [20, 20] });
   }
 }
+
 
 function refreshMapForProjectMode(projetoId) {
   if (!state.map) return;
@@ -164,10 +168,19 @@ function refreshMapForProjectMode(projetoId) {
         if (marker && typeof marker.setOpacity === "function") {
           marker.setOpacity(tipo === state.cercaAtual ? 1 : 0);
         }
+        if (marker && marker.dragging) {
+          // Só a cerca ativa é arrastável
+          if (tipo === state.cercaAtual) {
+            marker.dragging.enable();
+          } else {
+            marker.dragging.disable();
+          }
+        }
       });
     }
   }
 }
+
 
 // ---------------- Modo da sidebar (chamado de fora) ---------------- //
 export function setSidebarMode(mode) {
@@ -436,7 +449,15 @@ export function adicionarPontoCerca(projetoId, tipo, lat, lng) {
 
   const marker = L.marker([lat, lng], { draggable: true }).addTo(state.map);
 
+  // Atualiza ponto após arrastar – só se estiver em modo projeto E no projeto ativo
   marker.on("dragend", (e) => {
+    if (
+      state.sidebarMode !== "project" ||
+      state.projetoAtual !== projetoId
+    ) {
+      return; // ignora movimentos em modo geral ou em outro projeto
+    }
+
     const novaPosicao = e.target.getLatLng();
     const idx = cerca.markers.indexOf(marker);
     if (idx !== -1) {
@@ -446,7 +467,15 @@ export function adicionarPontoCerca(projetoId, tipo, lat, lng) {
     }
   });
 
+  // Remover ponto (clique direito) – só se estiver em modo projeto E no projeto ativo
   marker.on("contextmenu", () => {
+    if (
+      state.sidebarMode !== "project" ||
+      state.projetoAtual !== projetoId
+    ) {
+      return; // não remove nada na aba Geral
+    }
+
     const idx = cerca.markers.indexOf(marker);
     if (idx !== -1) {
       cerca.markers.splice(idx, 1);
@@ -457,15 +486,24 @@ export function adicionarPontoCerca(projetoId, tipo, lat, lng) {
     }
   });
 
+  // Se não for o projeto/cerca ativos, começa oculto e com drag desabilitado
   if (state.projetoAtual !== projetoId || state.cercaAtual !== tipo) {
     if (typeof marker.setOpacity === "function") {
       marker.setOpacity(0);
     }
   }
 
+  // Em modo Geral, sempre desabilita drag
+  if (state.sidebarMode !== "project" || state.projetoAtual !== projetoId) {
+    if (marker.dragging) {
+      marker.dragging.disable();
+    }
+  }
+
   cerca.markers.push(marker);
   cerca.pontos.push({ lat, lng });
 }
+
 
 export function apagarCerca(projetoId, tipo) {
   const projeto = state.projetos[projetoId];
