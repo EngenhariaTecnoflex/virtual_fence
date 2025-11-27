@@ -6,7 +6,7 @@ import {
   escaparTextoFedit,
 } from "./serial.js";
 
-// ---------------- Helpers UI: abas de projeto ---------------- //
+// ---------------- Helpers UI: abas de projeto + aba Geral ---------------- //
 function createProjectTab(id, name) {
   const tabsBar = document.getElementById("tabsBar");
   if (!tabsBar) return;
@@ -23,18 +23,26 @@ function createProjectTab(id, name) {
   tabsBar.appendChild(btn);
 }
 
-function setActiveProjectTabUI(activeId) {
+function updateTopTabsUI() {
+  const generalBtn = document.getElementById("tabGeneral");
   const tabsBar = document.getElementById("tabsBar");
-  if (!tabsBar) return;
+  if (!tabsBar || !generalBtn) return;
 
-  const buttons = tabsBar.querySelectorAll(".tab-button");
-  buttons.forEach((btn) => {
-    if (btn.dataset.projetoId === activeId) {
-      btn.classList.add("tab-active");
-    } else {
-      btn.classList.remove("tab-active");
-    }
-  });
+  const projButtons = tabsBar.querySelectorAll(".tab-button[data-projeto-id]");
+
+  if (state.sidebarMode === "global") {
+    generalBtn.classList.add("tab-active");
+    projButtons.forEach((b) => b.classList.remove("tab-active"));
+  } else {
+    generalBtn.classList.remove("tab-active");
+    projButtons.forEach((b) => {
+      if (b.dataset.projetoId === state.projetoAtual) {
+        b.classList.add("tab-active");
+      } else {
+        b.classList.remove("tab-active");
+      }
+    });
+  }
 }
 
 function updateProjectCardsVisibility(activeId) {
@@ -47,21 +55,7 @@ function updateProjectCardsVisibility(activeId) {
   });
 }
 
-// ---------------- Helpers UI: abas da sidebar (Geral / Projeto) ---------------- //
-function updateSidebarTabsUI() {
-  const tabGlobal = document.getElementById("tabSidebarGlobal");
-  const tabProject = document.getElementById("tabSidebarProject");
-  if (!tabGlobal || !tabProject) return;
-
-  if (state.sidebarMode === "global") {
-    tabGlobal.classList.add("sidebar-tab-active");
-    tabProject.classList.remove("sidebar-tab-active");
-  } else {
-    tabGlobal.classList.remove("sidebar-tab-active");
-    tabProject.classList.add("sidebar-tab-active");
-  }
-}
-
+// ---------------- Lateral: mostrar controles ou card do projeto ---------------- //
 function updateSidebarPanelsVisibility() {
   const controlsPanel = document.getElementById("controlsPanel");
   const projectsPanel = document.getElementById("projectsPanel");
@@ -80,7 +74,7 @@ function updateSidebarPanelsVisibility() {
 function showAllProjectsOnMap() {
   if (!state.map) return;
 
-  // Remove tudo que já está no mapa
+  // Remove qualquer polígono existente
   for (let pid in state.projetos) {
     const projeto = state.projetos[pid];
     for (let tipo in projeto.cercas) {
@@ -175,28 +169,19 @@ function refreshMapForProjectMode(projetoId) {
   }
 }
 
-// ---------------- Sidebar mode API ---------------- //
+// ---------------- Modo da sidebar (chamado de fora) ---------------- //
 export function setSidebarMode(mode) {
-  if (mode !== "global" && mode !== "project") return;
-
   if (mode === "global") {
     state.sidebarMode = "global";
-    updateSidebarTabsUI();
     updateSidebarPanelsVisibility();
     showAllProjectsOnMap();
+    updateTopTabsUI();
     atualizarStatusSistema();
-  } else {
-    // modo "Projeto": se não tiver projeto, não faz nada
+  } else if (mode === "project") {
     const ids = Object.keys(state.projetos);
-    if (ids.length === 0) {
-      state.sidebarMode = "global";
-      updateSidebarTabsUI();
-      updateSidebarPanelsVisibility();
-      atualizarStatusSistema();
-      return;
-    }
+    if (ids.length === 0) return;
     const targetId = state.projetoAtual || ids[0];
-    ativarProjeto(targetId); // isso já ajusta modo, mapa e sidebar
+    ativarProjeto(targetId);
   }
 }
 
@@ -327,7 +312,8 @@ export function criarProjeto(id, data) {
     projeto.nome = novoNome;
     container.querySelector("h3").textContent = novoNome;
 
-    const tab = document.querySelector(
+    const tabsBar = document.getElementById("tabsBar");
+    const tab = tabsBar.querySelector(
       `.tab-button[data-projeto-id="${id}"]`
     );
     if (tab) tab.textContent = novoNome;
@@ -391,9 +377,6 @@ export function ativarProjeto(projetoId) {
   if (!state.projetos[projetoId]) return;
 
   state.sidebarMode = "project";
-  updateSidebarTabsUI();
-  updateSidebarPanelsVisibility();
-
   if (
     !state.cercaAtual ||
     !state.projetos[projetoId].cercas[state.cercaAtual]
@@ -402,8 +385,9 @@ export function ativarProjeto(projetoId) {
   }
   state.projetoAtual = projetoId;
 
+  updateSidebarPanelsVisibility();
   refreshMapForProjectMode(projetoId);
-  setActiveProjectTabUI(projetoId);
+  updateTopTabsUI();
   updateProjectCardsVisibility(projetoId);
   centralizarProjetoNoMapa(projetoId);
   atualizarStatusSistema();
@@ -853,10 +837,11 @@ export function removerProjeto(projetoId) {
     if (ids.length > 0) {
       ativarProjeto(ids[0]);
     } else {
+      // volta para modo global sem projetos
       state.sidebarMode = "global";
-      updateSidebarTabsUI();
       updateSidebarPanelsVisibility();
       showAllProjectsOnMap();
+      updateTopTabsUI();
       atualizarStatusSistema();
     }
   } else {

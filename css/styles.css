@@ -30,28 +30,6 @@ body {
   border-right: 1px solid #ccc;
 }
 
-/* Abas da sidebar (Geral / Projeto) */
-#sidebarTabs {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 4px;
-}
-
-.sidebar-tab {
-  flex: 1;
-  padding: 4px 6px;
-  font-size: 12px;
-  border-radius: 4px;
-  border: 1px solid #bbb;
-  background-color: #e6e6e6;
-  cursor: pointer;
-}
-
-.sidebar-tab-active {
-  background-color: #ffffff;
-  font-weight: bold;
-}
-
 /* Painel de controles (novo projeto, serial, medição...) */
 #controlsPanel {
   display: flex;
@@ -96,7 +74,7 @@ body {
   min-height: 0;
 }
 
-/* Barra de abas no topo do mapa (uma por projeto) */
+/* Barra de abas no topo do mapa (Geral + projetos) */
 #tabsBar {
   flex-shrink: 0;
   display: flex;
@@ -106,7 +84,7 @@ body {
   background-color: #f7f7f7;
 }
 
-/* Botões das abas de projeto */
+/* Botões das abas (Geral + projetos) */
 .tab-button {
   padding: 4px 10px;
   font-size: 13px;

@@ -12,36 +12,51 @@ window.addEventListener("DOMContentLoaded", () => {
   initMap();
   atualizarStatusSistema();
 
-  // Botões principais
-  document.getElementById("btnNovoProjeto")
-    .addEventListener("click", criarNovoProjeto);
+  // Botões principais da lateral
+  const btnNovoProjeto = document.getElementById("btnNovoProjeto");
+  if (btnNovoProjeto) {
+    btnNovoProjeto.addEventListener("click", criarNovoProjeto);
+  }
 
-  document.getElementById("jsonUpload")
-    .addEventListener("change", importarMultiplosJSON);
+  const jsonUpload = document.getElementById("jsonUpload");
+  if (jsonUpload) {
+    jsonUpload.addEventListener("change", importarMultiplosJSON);
+  }
 
-  document.getElementById("btnAtivarMedicao")
-    .addEventListener("click", ativarMedicao);
+  const btnAtivarMedicao = document.getElementById("btnAtivarMedicao");
+  if (btnAtivarMedicao) {
+    btnAtivarMedicao.addEventListener("click", ativarMedicao);
+  }
 
-  document.getElementById("btnLimparMedicao")
-    .addEventListener("click", limparMedicao);
+  const btnLimparMedicao = document.getElementById("btnLimparMedicao");
+  if (btnLimparMedicao) {
+    btnLimparMedicao.addEventListener("click", limparMedicao);
+  }
 
   // Serial
-  document.getElementById("btnConectarSerial")
-    .addEventListener("click", conectarSerial);
+  const btnConectarSerial = document.getElementById("btnConectarSerial");
+  if (btnConectarSerial) {
+    btnConectarSerial.addEventListener("click", conectarSerial);
+  }
 
-  document.getElementById("btnDesconectarSerial")
-    .addEventListener("click", desconectarSerial);
+  const btnDesconectarSerial = document.getElementById("btnDesconectarSerial");
+  if (btnDesconectarSerial) {
+    btnDesconectarSerial.addEventListener("click", desconectarSerial);
+  }
 
-  document.getElementById("btnImportarSerial")
-    .addEventListener("click", importarJsonDaSerial);
+  const btnImportarSerial = document.getElementById("btnImportarSerial");
+  if (btnImportarSerial) {
+    btnImportarSerial.addEventListener("click", importarJsonDaSerial);
+  }
 
-  // Abas da sidebar
-  document.getElementById("tabSidebarGlobal")
-    .addEventListener("click", () => setSidebarMode("global"));
+  // Aba Geral no topo do mapa
+  const tabGeneral = document.getElementById("tabGeneral");
+  if (tabGeneral) {
+    tabGeneral.addEventListener("click", () => setSidebarMode("global"));
+  } else {
+    console.warn("Elemento #tabGeneral não encontrado no DOM.");
+  }
 
-  document.getElementById("tabSidebarProject")
-    .addEventListener("click", () => setSidebarMode("project"));
-
-  // Começa em modo geral (configs/importação)
+  // Começa em modo geral (configs/importação, todas as cercas visíveis)
   setSidebarMode("global");
 });

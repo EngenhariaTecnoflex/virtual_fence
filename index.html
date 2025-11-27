@@ -11,12 +11,6 @@
   <div id="container">
     <div id="sidebar">
       <h2>Projetos de Cercas</h2>
-
-      <div id="sidebarTabs">
-        <button id="tabSidebarGlobal" class="sidebar-tab sidebar-tab-active">⚙️ Geral</button>
-        <button id="tabSidebarProject" class="sidebar-tab">📁 Projeto</button>
-      </div>
-
       <div id="controlsPanel">
         <input type="file" id="jsonUpload" accept=".json" multiple>
         <button id="btnNovoProjeto" class="btn-main">🆕 Novo Projeto de Cercas</button>
@@ -49,7 +43,13 @@
     </div>
 
     <div id="mapArea">
-      <div id="tabsBar"></div>
+      <div id="tabsBar">
+        <!-- Aba Geral fixa -->
+        <button id="tabGeneral" class="tab-button tab-active" data-mode="global">
+            ⚙️ Geral
+        </button>
+        <!-- As abas de projeto serão adicionadas dinamicamente aqui -->
+      </div>
       <div id="map"></div>
     </div>
   </div>
