@@ -130,7 +130,6 @@ function showAllProjectsOnMap() {
   }
 }
 
-
 function refreshMapForProjectMode(projetoId) {
   if (!state.map) return;
   const projetoAtivo = state.projetos[projetoId];
@@ -205,8 +204,6 @@ function refreshMapForProjectMode(projetoId) {
     }
   }
 }
-
-
 
 // ---------------- Modo da sidebar (chamado de fora) ---------------- //
 export function setSidebarMode(mode) {
@@ -530,7 +527,6 @@ export function adicionarPontoCerca(projetoId, tipo, lat, lng) {
   cerca.pontos.push({ lat, lng });
 }
 
-
 export function apagarCerca(projetoId, tipo) {
   const projeto = state.projetos[projetoId];
   const cerca = projeto.cercas[tipo];
@@ -616,17 +612,58 @@ export function centralizarProjetoNoMapa(projetoId) {
   state.map.fitBounds(bounds, { padding: [20, 20] });
 }
 
+// ---------------- Helper para normalizar formato antigo/novo ---------------- //
+function converterPontoJsonParaLatLng(p) {
+  // Formato novo: [latitude_scaled, longitude_scaled]
+  if (Array.isArray(p) && p.length >= 2) {
+    const latEsc = Number(p[0]);
+    const lngEsc = Number(p[1]);
+    if (!Number.isNaN(latEsc) && !Number.isNaN(lngEsc)) {
+      return {
+        lat: latEsc / 1e6,
+        lng: lngEsc / 1e6,
+      };
+    }
+  }
+
+  // Formato antigo: { latitude: ..., longitude: ... }
+  if (p && typeof p === "object") {
+    const latEsc = Number(p.latitude);
+    const lngEsc = Number(p.longitude);
+    if (!Number.isNaN(latEsc) && !Number.isNaN(lngEsc)) {
+      return {
+        lat: latEsc / 1e6,
+        lng: lngEsc / 1e6,
+      };
+    }
+  }
+
+  // Formato inválido
+  return null;
+}
+
 // ---------------- Carregar cercas (JSON/KML/serial) ---------------- //
 export function carregarCercas(projetoId, data) {
-  (data.internal || []).forEach((p) =>
-    adicionarPontoCerca(projetoId, "internal", p.latitude / 1e6, p.longitude / 1e6)
-  );
-  (data.external || []).forEach((p) =>
-    adicionarPontoCerca(projetoId, "external", p.latitude / 1e6, p.longitude / 1e6)
-  );
-  (data.box || []).forEach((p) =>
-    adicionarPontoCerca(projetoId, "box", p.latitude / 1e6, p.longitude / 1e6)
-  );
+  (data.internal || []).forEach((p) => {
+    const pt = converterPontoJsonParaLatLng(p);
+    if (pt) {
+      adicionarPontoCerca(projetoId, "internal", pt.lat, pt.lng);
+    }
+  });
+
+  (data.external || []).forEach((p) => {
+    const pt = converterPontoJsonParaLatLng(p);
+    if (pt) {
+      adicionarPontoCerca(projetoId, "external", pt.lat, pt.lng);
+    }
+  });
+
+  (data.box || []).forEach((p) => {
+    const pt = converterPontoJsonParaLatLng(p);
+    if (pt) {
+      adicionarPontoCerca(projetoId, "box", pt.lat, pt.lng);
+    }
+  });
 
   atualizarPoligonos(projetoId);
   atualizarListas(projetoId);
@@ -698,24 +735,44 @@ export function handleKMLUpload(event, projetoId, tipo) {
   reader.readAsText(file);
 }
 
-
 // ---------------- JSON export local ---------------- //
+// Sempre exporta no FORMATO NOVO: arrays [lat, lng] * 1e6.
+// Mantém quebras de linha e coloca cada par lat,long na mesma linha.
 export function gerarJsonProjeto(projetoId) {
   const projeto = state.projetos[projetoId];
-  const dados = {};
 
-  dados.fence_name = projeto.nome;
-  dados.description = projeto.descricao;
+  const tipos = Object.keys(projeto.cercas);
 
-  for (let tipo in projeto.cercas) {
+  const linhas = [];
+
+  const nomeStr = JSON.stringify(projeto.nome);
+  const descStr = JSON.stringify(projeto.descricao);
+
+  linhas.push("{");
+  linhas.push(`"fence_name":${nomeStr},`);
+  linhas.push(`"description":${descStr},`);
+
+  tipos.forEach((tipo, idxTipo) => {
     const pontos = projeto.cercas[tipo].pontos;
-    dados[tipo] = pontos.map((p) => ({
-      latitude: Math.round(p.lat * 1e6),
-      longitude: Math.round(p.lng * 1e6),
-    }));
-  }
+    const isLastTipo = idxTipo === tipos.length - 1;
 
-  return JSON.stringify(dados, null, 2);
+    linhas.push(`"${tipo}":[`);
+
+    pontos.forEach((p, idxP) => {
+      const lat = Math.round(p.lat * 1e6);
+      const lng = Math.round(p.lng * 1e6);
+      const isLastPonto = idxP === pontos.length - 1;
+
+      // Cada par na MESMA linha, sem espaços
+      linhas.push(`[${lat},${lng}]${isLastPonto ? "" : ","}`);
+    });
+
+    linhas.push(`]${isLastTipo ? "" : ","}`);
+  });
+
+  linhas.push("}");
+
+  return linhas.join("\n");
 }
 
 export function exportarProjeto(projetoId) {
@@ -813,6 +870,7 @@ export async function exportarProjetoParaSerial(projetoId) {
       return;
     }
 
+    // Sempre exporta usando o formato novo (arrays) com quebras de linha
     const json = gerarJsonProjeto(projetoId);
 
     const nomePadrao = projeto.nome.replace(/\s+/g, "_") + ".json";
@@ -852,8 +910,8 @@ export async function exportarProjetoParaSerial(projetoId) {
       const textoEscapado = escaparTextoFedit(linhaOriginal);
       const cmd = `fedit ${tempPath} -t "${textoEscapado}"`;
 
-    //   await enviarComandoSerial(cmd, 2000);
-    //   await delay(10);
+      //   await enviarComandoSerial(cmd, 2000);
+      //   await delay(10);
 
       await enviarComandoSerialAtePrompt(cmd);
 
