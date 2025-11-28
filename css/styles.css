@@ -319,6 +319,31 @@ button:disabled {
   padding: 5px 6px;
 }
 
+.horizontal-buttons {
+  display: flex;
+  gap: 10px;        /* espaço entre os botões */
+  width: 100%;
+}
+
+.horizontal-buttons .btn-main,
+.horizontal-buttons .file-button {
+  flex: 1 1 0;          /* ocupa espaço igualmente */
+  width: auto;          /* impede comportamento full-width original */
+  text-align: center;   /* centraliza o conteúdo */
+}
+
+.serial-buttons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.serial-buttons .btn-main {
+  flex: 1 1 0;          /* ocupa espaço igualmente */
+  width: auto;          /* impede comportamento full-width original */
+  text-align: center;   /* centraliza o conteúdo */
+}
+
 /* ========== CARDS DE PROJETO ========== */
 
 .projeto-container {

@@ -315,18 +315,26 @@ export function criarProjeto(id, data) {
     </div>
     <div class="btn-row">
       <button class="btn-export-json">📤 Exportar JSON</button>
-      <button class="btn-export-serial">📡 Enviar p/ ESP32</button>
+      <button class="btn-export-serial">🔌 Enviar p/ disp</button>
       <button class="btn-remover">🗑️ Remover Projeto</button>
     </div>
 
     <div style="margin-top: 8px;">
       <label>Importar KML para:</label>
-      <select class="kml-tipo">
-        <option value="internal">🔴 Interna</option>
-        <option value="external">🟡 Externa</option>
-      </select>
-      <input type="file" class="kml-file" accept=".kml">
+      <div class="btn-row">
+        <select class="kml-tipo">
+          <option value="internal">🔴 Interna</option>
+          <option value="external">🟡 Externa</option>
+        </select>
+        <!-- input real escondido -->
+        <input type="file" class="kml-file" accept=".kml" hidden>
+
+        <!-- botão estilizado -->
+        <label class="btn-main file-button kml-btn">📁 Importar KML</label>
+      </div>
     </div>
+
+
 
     <ul class="lista-internal"></ul>
     <ul class="lista-external"></ul>
@@ -397,9 +405,16 @@ export function criarProjeto(id, data) {
   // KML
   const selectKml = container.querySelector(".kml-tipo");
   const inputKml = container.querySelector(".kml-file");
+  const btnKml = container.querySelector(".kml-btn");
+
+  // Quando clicar no botão estilizado → abre o input escondido
+  btnKml.addEventListener("click", () => inputKml.click());
+
+  // Quando o usuário escolher o arquivo
   inputKml.addEventListener("change", (e) =>
     handleKMLUpload(e, id, selectKml.value)
   );
+
 
   // Carrega cercas (se já vieram do JSON)
   carregarCercas(id, data);

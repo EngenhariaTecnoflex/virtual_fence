@@ -12,18 +12,18 @@
     <div id="sidebar">
       <h2>Projetos de Cercas</h2>
       <div id="controlsPanel">
-        <div class="panel-row">
+
+        <div class="panel-row horizontal-buttons">
             <input type="file" id="jsonUpload" accept=".json" multiple hidden>
-            <label for="jsonUpload" class="btn-main file-button">📁 Importar do arquivo</label>
+            <label for="jsonUpload" class="btn-main file-button">📁 Importar JSON</label>
+
+            <button id="btnNovoProjeto" class="btn-main">🆕 Novo Projeto</button>
         </div>
-
-
-        <button id="btnNovoProjeto" class="btn-main">🆕 Novo Projeto de Cercas</button>
-
+        
         <div id="serialControls" class="panel">
-          <div class="panel-title">Comunicação Serial</div>
-          <div class="panel-row">
-            <button id="btnConectarSerial" class="btn-main">🔌 Conectar Serial</button>
+          <div class="panel-title">Dispositivo</div>
+          <div class="panel-row serial-buttons">
+            <button id="btnConectarSerial" class="btn-main">🔌 Conectar</button>
             <button id="btnDesconectarSerial" class="btn-main">❌ Desconectar</button>
           </div>
           <div class="panel-row">
