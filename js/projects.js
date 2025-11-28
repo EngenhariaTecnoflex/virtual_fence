@@ -284,40 +284,22 @@ export function criarProjeto(id, data) {
     },
   };
 
-  const container = document.createElement("div");
-  container.className = "projeto-container";
-  container.id = "projeto_" + id;
-
   const projeto = state.projetos[id];
 
-  container.innerHTML = `
-    <h3>${projeto.nome}</h3>
-    <div class="campo">
-      <label>Nome do Projeto:</label>
-      <input type="text" value="${projeto.nome}">
-    </div>
-    <div class="campo">
-      <label>Descrição:</label>
-      <textarea rows="2">${projeto.descricao}</textarea>
-    </div>
+  // 🔹 Bloco que vai ficar dentro de #projetosContainer
+  const bloco = document.createElement("div");
+  bloco.className = "projeto-bloco";
 
-    <div class="btn-row">
-      <button class="btn-interna-add">Adicionar Interna 🔴</button>
-      <button class="btn-interna-del">🗑️ Apagar Interna 🔴</button>
-    </div>
-    <div class="btn-row">
-      <button class="btn-externa-add">Adicionar Externa 🟡</button>
-      <button class="btn-externa-del">🗑️ Apagar Externa 🟡</button>
-    </div>
-    <div class="btn-row">
-      <button class="btn-box-add">Adicionar Box 🔵</button>
-      <button class="btn-box-del">🗑️ Apagar Box 🔵</button>
-    </div>
+  // 🔹 HTML do bloco: botões + KML + card do projeto (projeto-container)
+  bloco.innerHTML = `
+
+
     <div class="btn-row">
       <button class="btn-export-json">📤 Exportar JSON</button>
       <button class="btn-export-serial">🔌 Enviar p/ disp</button>
-      <button class="btn-remover">🗑️ Remover Projeto</button>
+      <button class="btn-remover">🗑️ Apagar Projeto</button>
     </div>
+
 
     <div style="margin-top: 8px;">
       <label>Importar KML para:</label>
@@ -334,19 +316,74 @@ export function criarProjeto(id, data) {
       </div>
     </div>
 
+    <div style="margin-top: 8px;">
+    </div>
+
+    <div class="cerca-row">
+      <label>🔴 Área controlada</label>
+
+      <div class="cerca-buttons">
+        <button class="btn-main btn-small btn-interna-add">➕</button>
+        <button class="btn-main btn-small btn-interna-del">🗑️</button>
+
+        <!-- Importar KML para ÁREA CONTROLADA -->
+        <input type="file" class="kml-file" accept=".kml" hidden>
+        <label class="btn-main btn-small kml-btn" data-tipo="internal">📁</label>
+      </div>
+    </div>
+
+    <div class="cerca-row">
+      <label>🟡 Faixa de pista</label>
+
+      <div class="cerca-buttons">
+        <button class="btn-main btn-small btn-externa-add">➕</button>
+        <button class="btn-main btn-small btn-externa-del">🗑️</button>
+
+        <!-- Importar KML para FAIXA -->
+        <input type="file" class="kml-file" accept=".kml" hidden>
+        <label class="btn-main btn-small kml-btn" data-tipo="external">📁</label>
+      </div>
+    </div>
+
+    <div class="cerca-row">
+      <label>🔵 Box</label>
+
+      <div class="cerca-buttons">
+        <button class="btn-main btn-small btn-box-add">➕</button>
+        <button class="btn-main btn-small btn-box-del">🗑️</button>
+
+        <!-- Importar KML para BOX -->
+        <input type="file" class="kml-file" accept=".kml" hidden>
+        <label class="btn-main btn-small kml-btn" data-tipo="box">📁</label>
+      </div>
+    </div>
 
 
-    <ul class="lista-internal"></ul>
-    <ul class="lista-external"></ul>
-    <ul class="lista-box"></ul>
+
+    <div class="projeto-container" id="projeto_${id}">
+      <h3>${projeto.nome}</h3>
+      <div class="campo">
+        <label>Nome do Projeto:</label>
+        <input type="text" value="${projeto.nome}">
+      </div>
+      <div class="campo">
+        <label>Descrição:</label>
+        <textarea rows="2">${projeto.descricao}</textarea>
+      </div>
+
+      <ul class="lista-internal"></ul>
+      <ul class="lista-external"></ul>
+      <ul class="lista-box"></ul>
+    </div>
   `;
 
-  document.getElementById("projetosContainer").appendChild(container);
+  // Anexa bloco no painel de projetos
+  document.getElementById("projetosContainer").appendChild(bloco);
 
-  // Cria aba para o projeto
-  createProjectTab(id, projeto.nome);
+  // 🔹 Referência ao card interno (continua com id="projeto_<id>")
+  const container = bloco.querySelector("#projeto_" + id);
 
-  // Liga eventos dos inputs
+  // ---------- Liga eventos dos inputs de nome/descrição ----------
   const [inputNome] = container.getElementsByTagName("input");
   const textareaDescricao = container.getElementsByTagName("textarea")[0];
 
@@ -369,59 +406,61 @@ export function criarProjeto(id, data) {
     projeto.descricao = e.target.value;
   });
 
-  // Botões de cerca
-  container
+  // ---------- Botões de cerca (agora fora da .projeto-container) ----------
+  bloco
     .querySelector(".btn-interna-add")
     .addEventListener("click", () => selecionarCerca(id, "internal"));
-  container
+  bloco
     .querySelector(".btn-interna-del")
     .addEventListener("click", () => apagarCerca(id, "internal"));
 
-  container
+  bloco
     .querySelector(".btn-externa-add")
     .addEventListener("click", () => selecionarCerca(id, "external"));
-  container
+  bloco
     .querySelector(".btn-externa-del")
     .addEventListener("click", () => apagarCerca(id, "external"));
 
-  container
+  bloco
     .querySelector(".btn-box-add")
     .addEventListener("click", () => selecionarCerca(id, "box"));
-  container
+  bloco
     .querySelector(".btn-box-del")
     .addEventListener("click", () => apagarCerca(id, "box"));
 
-  // Export / remover
-  container
+  // ---------- Export / remover ----------
+  bloco
     .querySelector(".btn-export-json")
     .addEventListener("click", () => exportarProjeto(id));
-  container
+  bloco
     .querySelector(".btn-export-serial")
     .addEventListener("click", () => exportarProjetoParaSerial(id));
-  container
+  bloco
     .querySelector(".btn-remover")
     .addEventListener("click", () => removerProjeto(id));
 
-  // KML
-  const selectKml = container.querySelector(".kml-tipo");
-  const inputKml = container.querySelector(".kml-file");
-  const btnKml = container.querySelector(".kml-btn");
+  // ---------- KML ----------
+  const selectKml = bloco.querySelector(".kml-tipo");
+  const inputKml = bloco.querySelector(".kml-file");
+  const btnKml = bloco.querySelector(".kml-btn");
 
-  // Quando clicar no botão estilizado → abre o input escondido
   btnKml.addEventListener("click", () => inputKml.click());
 
-  // Quando o usuário escolher o arquivo
   inputKml.addEventListener("change", (e) =>
     handleKMLUpload(e, id, selectKml.value)
   );
 
+  // ---------- Aba do projeto ----------
+  createProjectTab(id, projeto.nome);
 
-  // Carrega cercas (se já vieram do JSON)
+  // ---------- Carrega cercas (se vieram do JSON) ----------
   carregarCercas(id, data);
 
-  // Ativa esse projeto (modo projeto)
+  // ---------- Ativa esse projeto (modo projeto) ----------
   ativarProjeto(id);
 }
+
+
 
 // ---------------- Ativar projeto (aba de projeto + sidebar modo projeto) ---------------- //
 export function ativarProjeto(projetoId) {

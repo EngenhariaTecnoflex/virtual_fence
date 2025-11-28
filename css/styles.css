@@ -409,3 +409,25 @@ button:disabled {
   margin-top: 4px;
   font-size: 11px;
 }
+
+.cerca-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.cerca-row label {
+  font-weight: 600;
+}
+
+.cerca-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-small {
+  padding: 4px 8px !important;
+  width: auto !important;
+  flex: none !important;
+}
