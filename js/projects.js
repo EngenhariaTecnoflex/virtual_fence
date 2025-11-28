@@ -290,75 +290,48 @@ export function criarProjeto(id, data) {
   const bloco = document.createElement("div");
   bloco.className = "projeto-bloco";
 
-  // 🔹 HTML do bloco: botões + KML + card do projeto (projeto-container)
+  // 🔹 HTML do bloco: botões + cercas + card do projeto (projeto-container)
   bloco.innerHTML = `
-
-
     <div class="btn-row">
       <button class="btn-export-json">📤 Exportar JSON</button>
       <button class="btn-export-serial">🔌 Enviar p/ disp</button>
       <button class="btn-remover">🗑️ Apagar Projeto</button>
     </div>
 
-
-    <div style="margin-top: 8px;">
-      <label>Importar KML para:</label>
-      <div class="btn-row">
-        <select class="kml-tipo">
-          <option value="internal">🔴 Interna</option>
-          <option value="external">🟡 Externa</option>
-        </select>
-        <!-- input real escondido -->
-        <input type="file" class="kml-file" accept=".kml" hidden>
-
-        <!-- botão estilizado -->
-        <label class="btn-main file-button kml-btn">📁 Importar KML</label>
-      </div>
-    </div>
-
-    <div style="margin-top: 8px;">
-    </div>
+    <div style="margin-top: 8px;"></div>
 
     <div class="cerca-row">
       <label>🔴 Área controlada</label>
-
       <div class="cerca-buttons">
         <button class="btn-main btn-small btn-interna-add">➕</button>
         <button class="btn-main btn-small btn-interna-del">🗑️</button>
-
         <!-- Importar KML para ÁREA CONTROLADA -->
-        <input type="file" class="kml-file" accept=".kml" hidden>
-        <label class="btn-main btn-small kml-btn" data-tipo="internal">📁</label>
+        <input type="file" class="kml-file kml-file-internal" accept=".kml" hidden>
+        <label class="btn-main btn-small kml-btn kml-btn-internal">📁</label>
       </div>
     </div>
 
     <div class="cerca-row">
       <label>🟡 Faixa de pista</label>
-
       <div class="cerca-buttons">
         <button class="btn-main btn-small btn-externa-add">➕</button>
         <button class="btn-main btn-small btn-externa-del">🗑️</button>
-
         <!-- Importar KML para FAIXA -->
-        <input type="file" class="kml-file" accept=".kml" hidden>
-        <label class="btn-main btn-small kml-btn" data-tipo="external">📁</label>
+        <input type="file" class="kml-file kml-file-external" accept=".kml" hidden>
+        <label class="btn-main btn-small kml-btn kml-btn-external">📁</label>
       </div>
     </div>
 
     <div class="cerca-row">
       <label>🔵 Box</label>
-
       <div class="cerca-buttons">
         <button class="btn-main btn-small btn-box-add">➕</button>
         <button class="btn-main btn-small btn-box-del">🗑️</button>
-
         <!-- Importar KML para BOX -->
-        <input type="file" class="kml-file" accept=".kml" hidden>
-        <label class="btn-main btn-small kml-btn" data-tipo="box">📁</label>
+        <input type="file" class="kml-file kml-file-box" accept=".kml" hidden>
+        <label class="btn-main btn-small kml-btn kml-btn-box">📁</label>
       </div>
     </div>
-
-
 
     <div class="projeto-container" id="projeto_${id}">
       <h3>${projeto.nome}</h3>
@@ -439,16 +412,19 @@ export function criarProjeto(id, data) {
     .querySelector(".btn-remover")
     .addEventListener("click", () => removerProjeto(id));
 
-  // ---------- KML ----------
-  const selectKml = bloco.querySelector(".kml-tipo");
-  const inputKml = bloco.querySelector(".kml-file");
-  const btnKml = bloco.querySelector(".kml-btn");
+  // ---------- KML por cerca (cada botão importa direto para sua cerca) ----------
+  function configurarBotaoKml(tipo) {
+    const btn = bloco.querySelector(`.kml-btn-${tipo}`);
+    const input = bloco.querySelector(`.kml-file-${tipo}`);
+    if (!btn || !input) return;
 
-  btnKml.addEventListener("click", () => inputKml.click());
+    btn.addEventListener("click", () => input.click());
+    input.addEventListener("change", (e) => handleKMLUpload(e, id, tipo));
+  }
 
-  inputKml.addEventListener("change", (e) =>
-    handleKMLUpload(e, id, selectKml.value)
-  );
+  configurarBotaoKml("internal");
+  configurarBotaoKml("external");
+  configurarBotaoKml("box");
 
   // ---------- Aba do projeto ----------
   createProjectTab(id, projeto.nome);
@@ -456,11 +432,14 @@ export function criarProjeto(id, data) {
   // ---------- Carrega cercas (se vieram do JSON) ----------
   carregarCercas(id, data);
 
+  // Após carregar, ajusta visibilidade dos botões KML conforme existência de pontos
+  atualizarVisibilidadeKmlPorCerca(id, "internal");
+  atualizarVisibilidadeKmlPorCerca(id, "external");
+  atualizarVisibilidadeKmlPorCerca(id, "box");
+
   // ---------- Ativa esse projeto (modo projeto) ----------
   ativarProjeto(id);
 }
-
-
 
 // ---------------- Ativar projeto (aba de projeto + sidebar modo projeto) ---------------- //
 export function ativarProjeto(projetoId) {
@@ -513,6 +492,27 @@ function selecionarCerca(projetoId, tipo) {
   atualizarStatusSistema();
 }
 
+// ---------------- Helper: visibilidade botão KML por cerca ---------------- //
+function atualizarVisibilidadeKmlPorCerca(projetoId, tipo) {
+  const container = document.getElementById("projeto_" + projetoId);
+  if (!container) return;
+  const bloco = container.closest(".projeto-bloco");
+  if (!bloco) return;
+
+  const btn = bloco.querySelector(`.kml-btn-${tipo}`);
+  if (!btn) return;
+
+  const projeto = state.projetos[projetoId];
+  const cerca = projeto?.cercas?.[tipo];
+  if (!cerca) return;
+
+  if (cerca.pontos.length > 0) {
+    btn.style.display = "none";
+  } else {
+    btn.style.display = "inline-flex";
+  }
+}
+
 // ---------------- Cercas ---------------- //
 export function adicionarPontoCerca(projetoId, tipo, lat, lng) {
   const projeto = state.projetos[projetoId];
@@ -560,6 +560,7 @@ export function adicionarPontoCerca(projetoId, tipo, lat, lng) {
       state.map.removeLayer(marker);
       atualizarPoligonos(projetoId);
       atualizarListas(projetoId);
+      atualizarVisibilidadeKmlPorCerca(projetoId, tipo);
     }
   });
 
@@ -579,6 +580,9 @@ export function adicionarPontoCerca(projetoId, tipo, lat, lng) {
 
   cerca.markers.push(marker);
   cerca.pontos.push({ lat, lng });
+
+  // Atualiza visibilidade do botão KML (esconde se passou a ter pontos)
+  atualizarVisibilidadeKmlPorCerca(projetoId, tipo);
 }
 
 export function apagarCerca(projetoId, tipo) {
@@ -595,6 +599,9 @@ export function apagarCerca(projetoId, tipo) {
 
   cerca.pontos = [];
   atualizarListas(projetoId);
+
+  // Reexibe botão KML dessa cerca (agora vazia)
+  atualizarVisibilidadeKmlPorCerca(projetoId, tipo);
 }
 
 // ---------------- Polígonos / listas ---------------- //
@@ -779,6 +786,7 @@ export function handleKMLUpload(event, projetoId, tipo) {
       atualizarPoligonos(projetoId);
       atualizarListas(projetoId);
       centralizarProjetoNoMapa(projetoId);
+      atualizarVisibilidadeKmlPorCerca(projetoId, tipo);
       alert("KML importado com sucesso para a cerca " + tipo.toUpperCase() + ".");
     } catch (error) {
       console.error("Erro ao processar KML:", error);
@@ -1005,7 +1013,11 @@ export function removerProjeto(projetoId) {
   }
 
   const container = document.getElementById("projeto_" + projetoId);
-  if (container) container.remove();
+  if (container) {
+    const bloco = container.closest(".projeto-bloco");
+    if (bloco) bloco.remove();
+    else container.remove();
+  }
 
   const tabsBar = document.getElementById("tabsBar");
   if (tabsBar) {
