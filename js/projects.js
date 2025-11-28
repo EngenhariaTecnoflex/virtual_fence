@@ -292,48 +292,49 @@ export function criarProjeto(id, data) {
 
   // 🔹 HTML do bloco: botões + cercas + card do projeto (projeto-container)
   bloco.innerHTML = `
-    <div class="btn-row">
-      <button class="btn-export-json">📤 Exportar JSON</button>
-      <button class="btn-export-serial">🔌 Enviar p/ disp</button>
-      <button class="btn-remover">🗑️ Apagar Projeto</button>
-    </div>
-
-    <div style="margin-top: 8px;"></div>
-
-    <div class="cerca-row">
-      <label>🔴 Área controlada</label>
-      <div class="cerca-buttons">
-        <button class="btn-main btn-small btn-interna-add">➕</button>
-        <button class="btn-main btn-small btn-interna-del">🗑️</button>
-        <!-- Importar KML para ÁREA CONTROLADA -->
-        <input type="file" class="kml-file kml-file-internal" accept=".kml" hidden>
-        <label class="btn-main btn-small kml-btn kml-btn-internal">📁</label>
+   <div class="projeto-container" id="projeto_${id}">
+      <div class="btn-row">
+        <button class="btn-export-json">📤 Exportar JSON</button>
+        <button class="btn-export-serial">🔌 Enviar p/ disp</button>
+        <button class="btn-remover">🗑️ Apagar Projeto</button>
       </div>
-    </div>
 
-    <div class="cerca-row">
-      <label>🟡 Faixa de pista</label>
-      <div class="cerca-buttons">
-        <button class="btn-main btn-small btn-externa-add">➕</button>
-        <button class="btn-main btn-small btn-externa-del">🗑️</button>
-        <!-- Importar KML para FAIXA -->
-        <input type="file" class="kml-file kml-file-external" accept=".kml" hidden>
-        <label class="btn-main btn-small kml-btn kml-btn-external">📁</label>
+      <div style="margin-top: 8px;"></div>
+
+      <div class="cerca-row">
+        <label>🔴 Área controlada</label>
+        <div class="cerca-buttons">
+          <button class="btn-main btn-small btn-interna-add">➕</button>
+          <button class="btn-main btn-small btn-interna-del">🗑️</button>
+          <!-- Importar KML para ÁREA CONTROLADA -->
+          <input type="file" class="kml-file kml-file-internal" accept=".kml" hidden>
+          <label class="btn-main btn-small kml-btn kml-btn-internal">📁</label>
+        </div>
       </div>
-    </div>
 
-    <div class="cerca-row">
-      <label>🔵 Box</label>
-      <div class="cerca-buttons">
-        <button class="btn-main btn-small btn-box-add">➕</button>
-        <button class="btn-main btn-small btn-box-del">🗑️</button>
-        <!-- Importar KML para BOX -->
-        <input type="file" class="kml-file kml-file-box" accept=".kml" hidden>
-        <label class="btn-main btn-small kml-btn kml-btn-box">📁</label>
+      <div class="cerca-row">
+        <label>🟡 Faixa de pista</label>
+        <div class="cerca-buttons">
+          <button class="btn-main btn-small btn-externa-add">➕</button>
+          <button class="btn-main btn-small btn-externa-del">🗑️</button>
+          <!-- Importar KML para FAIXA -->
+          <input type="file" class="kml-file kml-file-external" accept=".kml" hidden>
+          <label class="btn-main btn-small kml-btn kml-btn-external">📁</label>
+        </div>
       </div>
-    </div>
 
-    <div class="projeto-container" id="projeto_${id}">
+      <div class="cerca-row">
+        <label>🔵 Box</label>
+        <div class="cerca-buttons">
+          <button class="btn-main btn-small btn-box-add">➕</button>
+          <button class="btn-main btn-small btn-box-del">🗑️</button>
+          <!-- Importar KML para BOX -->
+          <input type="file" class="kml-file kml-file-box" accept=".kml" hidden>
+          <label class="btn-main btn-small kml-btn kml-btn-box">📁</label>
+        </div>
+      </div>
+
+    
       <h3>${projeto.nome}</h3>
       <div class="campo">
         <label>Nome do Projeto:</label>
