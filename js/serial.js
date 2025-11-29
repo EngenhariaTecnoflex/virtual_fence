@@ -1,3 +1,8 @@
+import {
+  atualizarUsoDisco,
+  obterUsoDisco,
+} from "./projects.js";
+
 // js/serial.js
 
 let port = null;
@@ -80,6 +85,8 @@ export async function conectarSerial() {
     // Inicia loop de leitura em background
     readLoop();
 
+    obterUsoDisco();
+
     alert("Conectado à porta serial.");
   } catch (err) {
     console.error("Erro ao conectar na serial:", err);
@@ -154,6 +161,9 @@ export async function desconectarSerial() {
     readBuffer = "";
     setSerialStatus("Desconectado");
     console.log("Porta serial desconectada e liberada.");
+
+    atualizarUsoDisco(-1);
+
   }
 }
 
@@ -217,5 +227,13 @@ export async function enviarComandoSerialAtePrompt(comando, prompt = "esp32s3>")
 
     checkLoop();
   });
+}
+
+export function isSerialConected()
+{
+  if (!port || !writer || !isConnected) {
+    return false;
+  }
+  return true;
 }
 

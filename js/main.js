@@ -8,6 +8,7 @@ import {
 } from "./projects.js";
 import { conectarSerial, desconectarSerial } from "./serial.js";
 
+
 window.addEventListener("DOMContentLoaded", () => {
   initMap();
   atualizarStatusSistema();
@@ -60,3 +61,5 @@ window.addEventListener("DOMContentLoaded", () => {
   // Começa em modo geral (configs/importação, todas as cercas visíveis)
   setSidebarMode("global");
 });
+
+

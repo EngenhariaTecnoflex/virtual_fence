@@ -5,6 +5,7 @@ import {
   delay,
   normalizarNomeArquivoRoot,
   escaparTextoFedit,
+  isSerialConected,
 } from "./serial.js";
 import { toGeoJSON } from "./libs/togeojson-module.js";
 
@@ -991,6 +992,9 @@ export async function exportarProjetoParaSerial(projetoId) {
     console.error(e);
     alert("Erro ao exportar via serial:\n" + e);
   } finally {
+
+    obterUsoDisco();
+
     if (statusEl) {
       statusEl.textContent = statusAnterior || "🟢 Sistema pronto";
     }
@@ -1067,4 +1071,77 @@ export function atualizarStatusSistema() {
   }
 
   document.getElementById("statusSistema").textContent = texto;
+}
+
+
+// ---------------- Uso do disco ---------------- //
+
+/**
+ * Atualiza status do disco
+ */
+export function atualizarUsoDisco(percent) {
+  const bar = document.getElementById("diskUsageBar");
+  const container = document.querySelector(".disk-usage-container");
+  const text = document.getElementById("diskUsagePercent");
+
+  if (percent < 0)
+  {
+    // "Desliga" o componente
+    container.style.opacity = "0.4";
+    container.style.pointerEvents = "none";
+    bar.style.width = "0%";
+    bar.style.backgroundColor = "#aaa";
+    text.textContent = "—";
+    return;
+  }
+
+  // Reabilita exibição
+  container.style.opacity = "1.0";
+  container.style.pointerEvents = "auto";
+  text.textContent = text.dataset.lastValue || "0%";
+
+  percent = Math.min(Math.max(percent, 0), 100); // clamp
+
+  document.getElementById("diskUsageBar").style.width = percent + "%";
+  document.getElementById("diskUsagePercent").textContent = percent + "%";
+
+  // Troca de cor
+  if (percent < 60) bar.style.backgroundColor = "#4caf50"; // verde
+  else if (percent < 85) bar.style.backgroundColor = "#ffc107"; // amarelo
+  else bar.style.backgroundColor = "#f44336"; // vermelho
+}
+
+export async function obterUsoDisco()
+{
+
+  if (isSerialConected() == false)
+  {
+    atualizarUsoDisco(-1); 
+    return;
+  }
+
+  enviarComandoSerial('mount_fs', 100);
+
+  const lsOutput = await enviarComandoSerial('fsinfo', 100);
+  const linhasBrutas = lsOutput
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  for (let linha of linhasBrutas) {
+    const texto = linha;
+
+    // Detectar linha do tipo:
+    // "Used : 7028 bytes (6.86 KiB) (0.78 %)"
+    if (texto.toLowerCase().startsWith("used")) {
+      const matchPercent = texto.match(/\(([\d.]+)\s*%\)/);
+      if (matchPercent) {
+        const percent = parseFloat(matchPercent[1]);
+        if (!isNaN(percent)) {
+          atualizarUsoDisco(percent); 
+        }
+      }
+    }
+  }
+
 }
