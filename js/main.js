@@ -5,6 +5,7 @@ import {
   importarJsonDaSerial,
   atualizarStatusSistema,
   setSidebarMode,
+  format,
 } from "./projects.js";
 import { conectarSerial, desconectarSerial } from "./serial.js";
 
@@ -48,6 +49,12 @@ window.addEventListener("DOMContentLoaded", () => {
   const btnImportarSerial = document.getElementById("btnImportarSerial");
   if (btnImportarSerial) {
     btnImportarSerial.addEventListener("click", importarJsonDaSerial);
+  }
+
+  const btnFormat = document.getElementById("btnFormat");
+  if (btnFormat)
+  {
+    btnFormat.addEventListener("click", format);
   }
 
   // Aba Geral no topo do mapa

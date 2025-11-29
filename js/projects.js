@@ -1145,3 +1145,23 @@ export async function obterUsoDisco()
   }
 
 }
+
+
+export async function format() 
+{
+
+  if (confirm("Deseja realmente formatar o dispositivo?\nTodos os dados serão apagados") == false)
+  {
+    return;
+  }  
+
+  const btnImportarSerial = document.getElementById("btnImportarSerial");
+
+  atualizarUsoDisco(-1);
+
+  await enviarComandoSerialAtePrompt('fsformat');
+
+  alert("Dispositivo formatado com sucesso\n");
+
+  obterUsoDisco();
+}
