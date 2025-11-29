@@ -3,6 +3,7 @@ import {
   criarNovoProjeto,
   importarMultiplosJSON,
   importarJsonDaSerial,
+  apagarJsonDaSerial,
   atualizarStatusSistema,
   setSidebarMode,
   format,
@@ -50,6 +51,12 @@ window.addEventListener("DOMContentLoaded", () => {
   if (btnImportarSerial) {
     btnImportarSerial.addEventListener("click", importarJsonDaSerial);
   }
+
+  const btnApagarSerial = document.getElementById("btnApagarSerial");
+  if (btnApagarSerial) {
+    btnApagarSerial.addEventListener("click", apagarJsonDaSerial);
+  }
+
 
   const btnFormat = document.getElementById("btnFormat");
   if (btnFormat)

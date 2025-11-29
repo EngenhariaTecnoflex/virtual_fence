@@ -1001,6 +1001,72 @@ export async function exportarProjetoParaSerial(projetoId) {
   }
 }
 
+export async function apagarJsonDaSerial() {
+  try {
+    const lsOutput = await enviarComandoSerial("ls", 2000);
+    const linhasBrutas = lsOutput
+      .split("\n")
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
+
+    const arquivosJson = [];
+
+    for (let linha of linhasBrutas) {
+      let texto = linha;
+      const prefix = "found file:";
+      if (texto.toLowerCase().startsWith(prefix)) {
+        texto = texto.slice(prefix.length).trim();
+      }
+
+      const partes = texto.split(/\s+/);
+      const possivelNome = partes[partes.length - 1];
+
+      if (possivelNome.toLowerCase().endsWith(".json")) {
+        const baseNome = possivelNome.replace(/^\/+/, "").split("/").pop();
+        arquivosJson.push(baseNome);
+      }
+    }
+
+    if (arquivosJson.length === 0) {
+      alert("Nenhum arquivo .json encontrado na ESP32 (comando ls).");
+      console.log("Saída do ls:", lsOutput);
+      return;
+    }
+
+    const escolha = prompt(
+      "Arquivos JSON encontrados na ESP32 (raiz):\n" +
+        arquivosJson.map((f, i) => `${i + 1}. ${f}`).join("\n") +
+        "\n\nDigite o número do arquivo que deseja REMOVER:"
+    );
+
+    const idx = parseInt(escolha, 10) - 1;
+    if (isNaN(idx) || idx < 0 || idx >= arquivosJson.length) {
+      alert("Escolha inválida.");
+      return;
+    }
+
+    
+    const nomeArquivo = arquivosJson[idx];
+    const caminhoArquivo = normalizarNomeArquivoRoot(nomeArquivo);
+    
+    
+    if (confirm("Realmente deseja apagar o arquivo: " + caminhoArquivo )== false)
+    {
+        return;
+    }
+
+    const catOutput = await enviarComandoSerialAtePrompt("rm " + caminhoArquivo);
+
+    obterUsoDisco();
+    
+    alert("Arquivo " + nomeArquivo + " apagado com sucesso");
+
+  } catch (e) {
+    console.error(e);
+    alert("Erro ao apagar arquivo:\n" + e);
+  }
+}
+
 // ---------------- Remoção e status ---------------- //
 export function removerProjeto(projetoId) {
   const projeto = state.projetos[projetoId];
@@ -1154,8 +1220,6 @@ export async function format()
   {
     return;
   }  
-
-  const btnImportarSerial = document.getElementById("btnImportarSerial");
 
   atualizarUsoDisco(-1);
 
