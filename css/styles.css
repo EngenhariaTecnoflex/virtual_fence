@@ -460,7 +460,7 @@ label.btn-main:active {
     transform 0.06s ease;
 }
 
-.disk-usage-container {
+.device-interactions-container {
   margin-top: 8px;
   display: flex;
   flex-direction: column;

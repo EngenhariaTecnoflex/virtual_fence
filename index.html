@@ -26,16 +26,19 @@
             <button id="btnConectarSerial" class="btn-main">🔌 Conectar</button>
             <button id="btnDesconectarSerial" class="btn-main">❌ Desconectar</button>
           </div>
-          <div class="panel-row">
-            <button id="btnImportarSerial" class="btn-main">⬇️ Importar do dispositivo</button>
-          </div>
           
           <div class="serial-status-row">
-            <span id="serialStatus">Desconectado</span>
+            <span id="serialStatus">Desconectado 🔴</span>
           </div>
 
+          <div class="device-interactions-container" style="opacity: 0.4; pointer-events: none;">
+
+            <div class="panel-row">
+              <button id="btnImportarSerial" class="btn-main">⬇️ Importar do dispositivo</button>
+            </div>
+          
+
           <!-- Barra de uso do disco -->
-          <div class="disk-usage-container" style="opacity: 0.4; pointer-events: none;">
             <label for="diskUsageBar">Uso do disco:</label>
             <div class="disk-usage-bar-bg">
               <div id="diskUsageBar" class="disk-usage-bar-fill" style="width: 0%"></div>

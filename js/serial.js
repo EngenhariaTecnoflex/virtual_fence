@@ -80,7 +80,7 @@ export async function conectarSerial() {
     reader = port.readable.getReader();
     readBuffer = "";
     isConnected = true;
-    setSerialStatus("Conectado");
+    setSerialStatus("Conectado 🟢");
 
     // Inicia loop de leitura em background
     readLoop();
@@ -159,7 +159,7 @@ export async function desconectarSerial() {
     port = null;
     isConnected = false;
     readBuffer = "";
-    setSerialStatus("Desconectado");
+    setSerialStatus("Desconectado 🔴");
     console.log("Porta serial desconectada e liberada.");
 
     atualizarUsoDisco(-1);

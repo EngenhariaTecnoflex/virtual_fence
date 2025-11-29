@@ -1081,7 +1081,7 @@ export function atualizarStatusSistema() {
  */
 export function atualizarUsoDisco(percent) {
   const bar = document.getElementById("diskUsageBar");
-  const container = document.querySelector(".disk-usage-container");
+  const container = document.querySelector(".device-interactions-container");
   const text = document.getElementById("diskUsagePercent");
 
   if (percent < 0)
