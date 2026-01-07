@@ -359,27 +359,30 @@ export function criarProjeto(id, data) {
   const container = bloco.querySelector("#projeto_" + id);
 
   // ---------- Liga eventos dos inputs de nome/descrição ----------
-  const [inputNome] = container.getElementsByTagName("input");
-  const textareaDescricao = container.getElementsByTagName("textarea")[0];
+  const inputNome = container.querySelector('input[type="text"]');
+  const textareaDescricao = container.querySelector("textarea");
 
-  inputNome.addEventListener("change", (e) => {
-    const novoNome = e.target.value.trim();
-    if (!novoNome) return;
-    projeto.nome = novoNome;
-    container.querySelector("h3").textContent = novoNome;
+  if (inputNome) {
+    inputNome.addEventListener("change", (e) => {
+      const novoNome = e.target.value.trim();
+      if (!novoNome) return;
+      projeto.nome = novoNome;
+      container.querySelector("h3").textContent = novoNome;
 
-    const tabsBar = document.getElementById("tabsBar");
-    const tab = tabsBar.querySelector(
-      `.tab-button[data-projeto-id="${id}"]`
-    );
-    if (tab) tab.textContent = novoNome;
+      const tabsBar = document.getElementById("tabsBar");
+      const tab =
+        tabsBar && tabsBar.querySelector(`.tab-button[data-projeto-id="${id}"]`);
+      if (tab) tab.textContent = novoNome;
 
-    atualizarStatusSistema();
-  });
+      atualizarStatusSistema();
+    });
+  }
 
-  textareaDescricao.addEventListener("change", (e) => {
-    projeto.descricao = e.target.value;
-  });
+  if (textareaDescricao) {
+    textareaDescricao.addEventListener("change", (e) => {
+      projeto.descricao = e.target.value;
+    });
+  }
 
   // ---------- Botões de cerca (agora fora da .projeto-container) ----------
   bloco
