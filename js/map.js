@@ -47,6 +47,22 @@ function registrarEventosMap() {
 function lidarCliqueMedicao(e) {
   state.pontosMedicao.push(e.latlng);
 
+  // Se for o primeiro ponto, cria um marcador para indicar o início
+  if (state.pontosMedicao.length === 1) {
+    try {
+      const m = L.marker(e.latlng).addTo(state.map);
+      if (!Array.isArray(state.marcadoresMedicao)) state.marcadoresMedicao = [];
+      state.marcadoresMedicao.push(m);
+    } catch (err) {
+      console.warn("Não foi possível criar marcador de medição:", err);
+    }
+    // Atualiza display com distância zero
+    try {
+      const el = document.getElementById("medicaoInfo");
+      if (el) el.textContent = "Distância: 0.00 m";
+    } catch (_) {}
+  }
+
   if (state.pontosMedicao.length >= 2) {
     if (state.linhaMedicao) {
       state.map.removeLayer(state.linhaMedicao);
@@ -54,6 +70,10 @@ function lidarCliqueMedicao(e) {
 
     state.linhaMedicao = L.polyline(state.pontosMedicao, { color: "black" }).addTo(state.map);
     const distanciaTotal = calcularDistanciaTotal(state.pontosMedicao);
+    try {
+      const el = document.getElementById("medicaoInfo");
+      if (el) el.textContent = "Distância: " + distanciaTotal.toFixed(2) + " m";
+    } catch (_) {}
     state.linhaMedicao
       .bindTooltip("Distância total: " + distanciaTotal.toFixed(2) + " m")
       .openTooltip();
@@ -69,10 +89,20 @@ function calcularDistanciaTotal(pontos) {
 }
 
 export function ativarMedicao() {
-  state.medicaoAtiva = true;
+  // Se já estiver ativa, desliga (toggle)
+  if (state.medicaoAtiva) {
+    resetMedicao();
+    atualizarStatusSistema();
+    return;
+  }
+
+  // Limpa medições anteriores e ativa
   resetMedicao();
+  state.medicaoAtiva = true;
   atualizarStatusSistema();
-  alert("Clique no mapa para marcar pontos de medição. Clique novamente em '📏 Medir Distância' para desativar.");
+  alert(
+    "Clique no mapa para marcar pontos de medição. Clique novamente em '📏 Medir Distância' para desativar."
+  );
 }
 
 export function limparMedicao() {

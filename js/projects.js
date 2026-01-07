@@ -1,4 +1,4 @@
-import { state } from "./state.js";
+import { state, resetMedicao } from "./state.js";
 import {
   enviarComandoSerial,
   enviarComandoSerialAtePrompt,
@@ -469,6 +469,9 @@ export function ativarProjeto(projetoId) {
 
 // ---------------- Seleção de cerca (camada) ---------------- //
 function selecionarCerca(projetoId, tipo) {
+  // Ao selecionar uma cerca para editar, desativa qualquer medição ativa
+  resetMedicao();
+
   state.projetoAtual = projetoId;
   state.cercaAtual = tipo;
 
