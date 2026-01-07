@@ -1070,13 +1070,35 @@ export async function exportarProjetoParaSerial(projetoId) {
     const json = valid.json;
 
     const nomePadrao = projeto.nome.replace(/\s+/g, "_") + ".json";
-    const entradaUsuario = prompt(
-      "Informe o NOME do arquivo na ESP32 (apenas nome, sem diretórios):",
-      nomePadrao
-    );
 
-    if (!entradaUsuario) {
-      return;
+    // Validação do nome do arquivo: apenas letras, números, '_' e '-', sem espaços
+    // e deve terminar em .json (case-insensitive). Não permite barras ou caminhos.
+    function validarNomeArquivoUsuario(nome) {
+      if (!nome || typeof nome !== "string") return false;
+      // Proíbe barras e espaços
+      if (/[\\/\s]/.test(nome)) return false;
+      // Apenas caracteres alfanuméricos, sublinhado e hífen antes do .json
+      return /^[A-Za-z0-9_-]+\.json$/i.test(nome);
+    }
+
+    let entradaUsuario = null;
+    while (true) {
+      const tentativa = prompt(
+        "Informe o NOME do arquivo na ESP32 (apenas nome, sem diretórios):",
+        nomePadrao
+      );
+      if (!tentativa) {
+        // Usuário cancelou
+        return;
+      }
+      if (!validarNomeArquivoUsuario(tentativa)) {
+        alert(
+          "Nome inválido. Use apenas letras, números, '_' ou '-' e termine com .json (ex: meu_arquivo.json). Sem espaços ou caminhos."
+        );
+        continue;
+      }
+      entradaUsuario = tentativa;
+      break;
     }
 
     const caminhoFinal = normalizarNomeArquivoRoot(entradaUsuario);
