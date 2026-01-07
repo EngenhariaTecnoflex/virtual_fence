@@ -297,7 +297,7 @@ export function criarProjeto(id, data) {
       <div class="btn-row">
         <button class="btn-export-json">📤 Exportar JSON</button>
         <button class="btn-export-serial">🔌 Enviar p/ disp</button>
-        <button class="btn-remover">🗑️ Apagar Projeto</button>
+        <button class="btn-remover">❌ Fechar Projeto</button>
       </div>
 
       <div style="margin-top: 8px;"></div>
