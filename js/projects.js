@@ -810,11 +810,16 @@ export function handleKMLUpload(event, projetoId, tipo) {
 // Mantém quebras de linha e coloca cada par lat,long na mesma linha.
 export function gerarJsonProjeto(projetoId) {
   const projeto = state.projetos[projetoId];
-
-  const tipos = Object.keys(projeto.cercas);
+  // Garantir que as três cercas existam e manter ordem previsível
+  const tiposFixos = ["internal", "external", "box"];
+  projeto.cercas = projeto.cercas || {};
+  tiposFixos.forEach((t) => {
+    if (!projeto.cercas[t]) {
+      projeto.cercas[t] = { pontos: [], markers: [], color: t === 'box' ? 'blue' : t === 'internal' ? 'red' : 'yellow', polygonLayer: null };
+    }
+  });
 
   const linhas = [];
-
   const nomeStr = JSON.stringify(projeto.nome);
   const descStr = JSON.stringify(projeto.descricao);
 
@@ -822,9 +827,9 @@ export function gerarJsonProjeto(projetoId) {
   linhas.push(`"fence_name":${nomeStr},`);
   linhas.push(`"description":${descStr},`);
 
-  tipos.forEach((tipo, idxTipo) => {
-    const pontos = projeto.cercas[tipo].pontos;
-    const isLastTipo = idxTipo === tipos.length - 1;
+  tiposFixos.forEach((tipo, idxTipo) => {
+    const pontos = projeto.cercas[tipo].pontos || [];
+    const isLastTipo = idxTipo === tiposFixos.length - 1;
 
     linhas.push(`"${tipo}":[`);
 
@@ -832,8 +837,6 @@ export function gerarJsonProjeto(projetoId) {
       const lat = Math.round(p.lat * 1e6);
       const lng = Math.round(p.lng * 1e6);
       const isLastPonto = idxP === pontos.length - 1;
-
-      // Cada par na MESMA linha, sem espaços
       linhas.push(`[${lat},${lng}]${isLastPonto ? "" : ","}`);
     });
 
@@ -845,10 +848,126 @@ export function gerarJsonProjeto(projetoId) {
   return linhas.join("\n");
 }
 
+// ---------------- Validação modular antes de salvar/enviar ----------------
+// Suporta registro de validadores nos estágios 'pre' (antes de gerar JSON)
+// e 'post' (após gerar JSON). Cada validador recebe (projetoId, json?)
+// e retorna { ok: true } ou { ok: false, reason: '...' }.
+
+export const projetoValidators = {
+  pre: [],
+  post: [],
+};
+
+export function registerProjetoValidator(fn, stage = "pre") {
+  if (stage !== "pre" && stage !== "post") stage = "pre";
+  projetoValidators[stage].push(fn);
+}
+
+// Validador padrão (pre): verifica existência das três cercas
+function validatorEnsureCercasExist(projetoId) {
+  const projeto = state.projetos[projetoId];
+  if (!projeto) return { ok: false, reason: "Projeto não encontrado." };
+  const hasInternal = projeto.cercas && projeto.cercas.internal;
+  const hasExternal = projeto.cercas && projeto.cercas.external;
+  const hasBox = projeto.cercas && projeto.cercas.box;
+  if (!hasInternal || !hasExternal || !hasBox) {
+    return { ok: false, reason: "O projeto deve conter as cercas 'internal', 'external' e 'box'." };
+  }
+  return { ok: true };
+}
+
+// Validador padrão (post): verifica tamanho máximo do JSON
+function validatorMaxSize(projetoId, json, maxLength = 2048) {
+  if (typeof json !== "string") return { ok: false, reason: "JSON inválido para validação de tamanho." };
+  if (json.length > maxLength) {
+    return { ok: false, reason: `O JSON gerado tem ${json.length} caracteres, excedendo o limite de ${maxLength}.` };
+  }
+  return { ok: true };
+}
+
+// Registra validadores padrão
+registerProjetoValidator(validatorEnsureCercasExist, "pre");
+registerProjetoValidator((projetoId, json) => validatorMaxSize(projetoId, json, 2048), "post");
+
+// Validador (pre) padrão: exige pelo menos 3 pontos em cada cerca
+function validatorMinPoints(projetoId, minPoints = 3) {
+  const projeto = state.projetos[projetoId];
+  if (!projeto) return { ok: false, reason: "Projeto não encontrado." };
+
+  const tipos = ["internal", "external", "box"];
+  const faltando = [];
+
+  tipos.forEach((t) => {
+    const pontos = projeto.cercas && projeto.cercas[t] && Array.isArray(projeto.cercas[t].pontos)
+      ? projeto.cercas[t].pontos.length
+      : 0;
+    if (pontos < minPoints) {
+      faltando.push(`${t} (${pontos})`);
+    }
+  });
+
+  if (faltando.length > 0) {
+    return { ok: false, reason: `Cada cerca precisa ter pelo menos ${minPoints} pontos — faltando: ${faltando.join(", ")}` };
+  }
+
+  return { ok: true };
+}
+
+registerProjetoValidator((projetoId) => validatorMinPoints(projetoId, 3), "pre");
+
+// Executa todos os validadores: pre -> gerarJson -> post
+export function executarValidacoesProjeto(projetoId) {
+  // roda validadores pre
+  for (let fn of projetoValidators.pre) {
+    try {
+      const res = fn(projetoId);
+      if (res && res.ok === false) return res;
+    } catch (err) {
+      return { ok: false, reason: String(err) };
+    }
+  }
+
+  // gera JSON
+  let json;
+  try {
+    json = gerarJsonProjeto(projetoId);
+  } catch (err) {
+    return { ok: false, reason: "Erro ao gerar JSON: " + String(err) };
+  }
+
+  // roda validadores post
+  for (let fn of projetoValidators.post) {
+    try {
+      const res = fn(projetoId, json);
+      if (res && res.ok === false) return res;
+    } catch (err) {
+      return { ok: false, reason: String(err) };
+    }
+  }
+
+  return { ok: true, json };
+}
+
+// Compatibilidade: mantém função antiga como wrapper leve
+export function validarProjetoAntesDeSalvar(projetoId, maxLength = 2048) {
+  // The post validator currently uses 2048; ignore maxLength param for now
+  return executarValidacoesProjeto(projetoId);
+}
+
 export function exportarProjeto(projetoId) {
   const projeto = state.projetos[projetoId];
-  const json = gerarJsonProjeto(projetoId);
+  if (!projeto) {
+    alert("Projeto não encontrado.");
+    return;
+  }
 
+  const valid = validarProjetoAntesDeSalvar(projetoId);
+  if (!valid.ok) {
+    alert("Impossível exportar: " + valid.reason);
+    return;
+  }
+
+  const json = valid.json;
   const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -940,8 +1059,15 @@ export async function exportarProjetoParaSerial(projetoId) {
       return;
     }
 
+    // Validação antes de exportar
+    const valid = validarProjetoAntesDeSalvar(projetoId);
+    if (!valid.ok) {
+      alert("Impossível exportar para o dispositivo: " + valid.reason);
+      return;
+    }
+
     // Sempre exporta usando o formato novo (arrays) com quebras de linha
-    const json = gerarJsonProjeto(projetoId);
+    const json = valid.json;
 
     const nomePadrao = projeto.nome.replace(/\s+/g, "_") + ".json";
     const entradaUsuario = prompt(

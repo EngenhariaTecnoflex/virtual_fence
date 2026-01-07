@@ -70,13 +70,25 @@ function lidarCliqueMedicao(e) {
 
     state.linhaMedicao = L.polyline(state.pontosMedicao, { color: "black" }).addTo(state.map);
     const distanciaTotal = calcularDistanciaTotal(state.pontosMedicao);
+
+    // Atualiza medicaoInfo (se presente)
     try {
       const el = document.getElementById("medicaoInfo");
       if (el) el.textContent = "Distância: " + distanciaTotal.toFixed(2) + " m";
     } catch (_) {}
-    state.linhaMedicao
-      .bindTooltip("Distância total: " + distanciaTotal.toFixed(2) + " m")
-      .openTooltip();
+
+    // Tooltip permanente no centro da linha para ficar sempre visível
+    try {
+      // Remove tooltip anterior se existir
+      if (state.linhaMedicao && state.linhaMedicao.unbindTooltip) {
+        try { state.linhaMedicao.unbindTooltip(); } catch (_) {}
+      }
+      state.linhaMedicao
+        .bindTooltip("Distância total: " + distanciaTotal.toFixed(2) + " m", { permanent: true, direction: 'center' })
+        .openTooltip();
+    } catch (err) {
+      console.warn('Erro ao associar tooltip permanente à linha de medição:', err);
+    }
   }
 }
 
