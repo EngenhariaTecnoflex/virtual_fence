@@ -877,7 +877,7 @@ function validatorEnsureCercasExist(projetoId) {
 }
 
 // Validador padrão (post): verifica tamanho máximo do JSON
-function validatorMaxSize(projetoId, json, maxLength = 200) {
+function validatorMaxSize(projetoId, json, maxLength = 2000) {
   if (typeof json !== "string") return { ok: false, reason: "JSON inválido para validação de tamanho." };
   if (json.length > maxLength) {
     return { ok: false, reason: `O JSON gerado tem ${json.length} caracteres, excedendo o limite de ${maxLength}.` };
@@ -887,7 +887,7 @@ function validatorMaxSize(projetoId, json, maxLength = 200) {
 
 // Registra validadores padrão
 registerProjetoValidator(validatorEnsureCercasExist, "pre");
-registerProjetoValidator((projetoId, json) => validatorMaxSize(projetoId, json, 200), "post");
+registerProjetoValidator((projetoId, json) => validatorMaxSize(projetoId, json, 2000), "post");
 
 // Validador (pre) padrão: exige pelo menos 3 pontos em cada cerca
 function validatorMinPoints(projetoId, minPoints = 3) {
@@ -949,8 +949,8 @@ export function executarValidacoesProjeto(projetoId) {
 }
 
 // Compatibilidade: mantém função antiga como wrapper leve
-export function validarProjetoAntesDeSalvar(projetoId, maxLength = 200) {
-  // The post validator currently uses 200; ignore maxLength param for now
+export function validarProjetoAntesDeSalvar(projetoId, maxLength = 2000) {
+  // The post validator currently uses 2000; ignore maxLength param for now
   return executarValidacoesProjeto(projetoId);
 }
 
